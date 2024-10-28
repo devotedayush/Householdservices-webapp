@@ -1,0 +1,103 @@
+<!-- templates/admin_dashboard.html -->
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<h1 class="text-center mb-4">Admin Dashboard</h1>
+
+<!-- Service Management Section -->
+<section id="service-management" class="mb-5">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2>Manage Services</h2>
+        <button class="btn btn-primary" onclick="location.href='{{ url_for('admin.create_service') }}'">Add New
+            Service</button>
+    </div>
+    <table class="table table-striped table-bordered mt-3">
+        <thead class="table-dark">
+            <tr>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Time Required</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for service in services %}
+            <tr>
+                <td>{{ service.name }}</td>
+                <td>{{ service.price }}</td>
+                <td>{{ service.time_required }} mins</td>
+                <td>{{ service.description }}</td>
+                <td>
+                    <a href="{{ url_for('admin.edit_service', service_id=service.id) }}"
+                        class="btn btn-warning btn-sm">Edit</a>
+                    <a href="{{ url_for('admin.delete_service', service_id=service.id) }}" class="btn btn-danger btn-sm"
+                        onclick="return confirm('Are you sure?')">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+<!-- User Management Section -->
+<section id="user-management">
+    <h2 class="mb-4">Manage Users</h2>
+
+    <!-- Professionals Table -->
+    <h3>Service Professionals</h3>
+    <table class="table table-striped table-bordered mt-3">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Experience</th>
+                <th>Service Type</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for professional in professionals %}
+            <tr>
+                <td>{{ professional.id }}</td>
+                <td>{{ professional.name }}</td>
+                <td>{{ professional.experience }} years</td>
+                <td>{{ professional.service_type }}</td>
+                <td>
+                    <a href="{{ url_for('admin.approve_professional', user_id=professional.id) }}"
+                        class="btn btn-success btn-sm">Approve</a>
+                    <a href="{{ url_for('admin.block_user', user_id=professional.id) }}"
+                        class="btn btn-danger btn-sm">Block</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Customers Table -->
+    <h3 class="mt-5">Customers</h3>
+    <table class="table table-striped table-bordered mt-3">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for customer in customers %}
+            <tr>
+                <td>{{ customer.id }}</td>
+                <td>{{ customer.name }}</td>
+                <td>
+                    <a href="{{ url_for('admin.block_user', user_id=customer.id) }}"
+                        class="btn btn-danger btn-sm">Block</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}

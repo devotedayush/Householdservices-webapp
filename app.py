@@ -1,7 +1,7 @@
 # app.py
 from flask import Flask, render_template, redirect, url_for, session
 from models import db, User, Service, ServiceRequest
-from admin_dashboard import admin_blueprint
+from Folder1.admin_dashboard import admin_blueprint
 
 app = Flask(__name__)
 app.config.from_object('config')
