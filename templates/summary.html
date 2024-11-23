@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Summary
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid"></div>
+<!-- Summary Section -->
+<div class="row mb-4 mt-3">
+    <div class="col-md-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h5 class="card-title">Pending Professionals</h5>
+                <h2 class="card-text">{{ pending_professionals }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5 class="card-title">Total Services</h5>
+                <h2 class="card-text">{{ total_services }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <h5 class="card-title">Active Requests</h5>
+                <h2 class="card-text">{{ active_requests }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -45,3 +45,56 @@ Project Root Folder
 │ ├── file1.py
 │ └── file2.py
 └── Project Report.pdf how would thsi look at the end
+
+
+### ER Diagram
+Database schema:
+1. Customer
+    - id
+    - Email
+    - passhash
+    - Full Name
+    - Address
+    - City
+    - pincode
+    - phone number
+2. Professional
+    - id
+    - Email
+    - passhash
+    - Full Name
+    - City
+    - pincode
+    - phone number
+    - Service Type
+    - Experience
+    - Document
+    - Status (pending, approved, rejected)
+3. ServiceCategory
+    - id
+    - Name (cleaning, plumbing, etc.)
+4. ServicePackage
+    - id
+    - Name
+    - Price
+    - Service Category (id)
+    - Time (in hours)
+    - Description
+    - db.relationship('ServiceCategory', backref='service_packages', lazy=True, cascade="all, delete-orphan")
+4. ServiceRequest
+    - id
+    - Customer (id)
+    - Professional (id)
+    - Service Package (id)
+    - Status (Requested, assigned, completed)
+    - Date of Request
+    - Date of Completion
+    - Rating
+    - remarks
+5. RejectedServiceRequest
+    - id
+    - Service Request (id)
+    - Professional (id)
+    - So that a professional doesn't see a request that he has rejected
+
+find the project statement at : https://docs.google.com/document/u/1/d/1waf_CKBLk25fkwF-R4KS7wLq4KTIPhUcAtj6if5N-zo/pub

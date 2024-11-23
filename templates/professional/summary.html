@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Professional Summary{% endblock %}
+
+{% block content %}
+<h2>Summary</h2>
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h5 class="card-title">Assigned Requests</h5>
+                <p class="card-text display-4">{{ assigned_count }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5 class="card-title">Completed Requests</h5>
+                <p class="card-text display-4">{{ completed_count }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-danger">
+            <div class="card-body">
+                <h5 class="card-title">Rejected Requests</h5>
+                <p class="card-text display-4">{{ rejected_count }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
