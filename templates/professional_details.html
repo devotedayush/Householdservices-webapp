@@ -1,0 +1,21 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="card text-center">
+    <div class="card-header">
+        Professional's Details
+    </div>
+    <div class="card-body">
+        <h5 class="card-title">{{ service_request.professional.full_name }}</h5>
+        <p class="card-text">{{ service_request.professional.description }}</p>
+        <p>Email: {{ service_request.professional.email }}</p>
+        <p>City: {{ service_request.professional.city }}</p>
+        <p>Phone: {{ service_request.professional.phone_number }}</p>
+        <a href="{{ url_for('customer_view.dashboard') }}" class="btn btn-primary">Go back</a>
+    </div>
+    <div class="card-footer text-body-secondary">
+    </div>
+</div>
+{% endblock %}

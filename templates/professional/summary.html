@@ -29,5 +29,13 @@
             </div>
         </div>
     </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <h5 class="card-title">Average Rating</h5>
+                <p class="card-text display-4">{{ "%.1f"|format(avg_rating|default(0)) }}</p>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

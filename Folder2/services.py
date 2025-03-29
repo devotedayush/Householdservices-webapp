@@ -7,7 +7,7 @@ customer_services = Blueprint('customer_services', __name__)
 @customer_services.route('/request_service/<int:package_id>', methods=['POST'])
 def request_service(package_id):
     if 'user_id' not in session:
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('authentication.user_login'))
     
     service_request = ServiceRequest(
         customer_id=session['user_id'],
@@ -46,3 +46,18 @@ def cancel_request(request_id):
     db.session.commit()
     flash('Service request cancelled!', 'success')
     return redirect(url_for('customer_view.dashboard'))
+
+
+    
+    # things it's carrying in cache , also on that page redirection. 
+        # when a customer logs in, the authentication.user_login stores the user_id and role in session. 
+        # when a customer clicks on complete, the remark.html is rendered
+          # the request_id is passed to the remark.html, through which it queries the database object. 
+        # when a customer submits the form, the remark.html is posted. 
+            # the remarks and rating are stored in the database. 
+            # the service request is marked as completed. 
+            # the customer is redirected to the dashboard. 
+@customer_services.route('/professional_details/<int:request_id>', methods=['GET'])
+def professional_details(request_id):
+    service_request = ServiceRequest.query.get_or_404(request_id)
+    return render_template('professional_details.html', service_request=service_request)

@@ -9,7 +9,7 @@
                     <h3 class="text-center">Register as Customer</h3>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="{{ url_for('auth.register') }}">
+                    <form method="POST" action="{{ url_for('authentication.user_register') }}">
                         <div class="mb-3">
                             <label for="email" class="form-label">Email address</label>
                             <input type="email" class="form-control" id="email" name="email" required>
@@ -23,8 +23,8 @@
                             <input type="text" class="form-control" id="full_name" name="full_name" required>
                         </div>
                         <div class="mb-3">
-                            <label for="address" class="form-label">Address</label>
-                            <textarea class="form-control" id="address" name="address" rows="2" required></textarea>
+                            <label for="address" class="form-label">Address (Optional)</label>
+                            <textarea class="form-control" id="address" name="address" rows="2"></textarea>
                         </div>
                         <div class="mb-3">
                             <label for="city" class="form-label">City</label>
@@ -43,7 +43,7 @@
                         </div>
                     </form>
                     <div class="text-center mt-3">
-                        <p>Are you a service professional? <a href="{{ url_for('auth.register_professional') }}">Register here</a></p>
+                        <p>Are you a service professional? <a href="{{ url_for('authentication.professional_register') }}">Register here</a></p>
                     </div>
                 </div>
             </div>

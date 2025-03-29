@@ -1,129 +1,143 @@
-from flask import Blueprint, request, redirect, url_for, session, render_template, flash, current_app as app
+from flask import Blueprint, request, redirect, url_for, session, render_template, flash, current_app as current_app_instance
 from werkzeug.security import check_password_hash, generate_password_hash
 from models import db, Customer, Professional, ServicePackage
 from werkzeug.utils import secure_filename
 import os
 
 
-auth_blueprint = Blueprint('auth', __name__)
+authentication_bp = Blueprint('authentication', __name__)
 
-@auth_blueprint.route('/login', methods=['GET', 'POST'])
-def login():
+@authentication_bp.route('/login', methods=['GET', 'POST'])
+def user_login():
     if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
+        user_email = request.form.get('email')
+        user_password = request.form.get('password')
 
-        # Check admin credentials
-        admin = Customer.query.filter_by(email=email, is_admin=True).first()
-        if admin and admin.check_password(password):
-            session['user_id'] = admin.id
+        # Validate admin user
+        admin_user = Customer.query.filter_by(email=user_email, is_admin=True).first()
+        if admin_user and admin_user.check_password(user_password):
+            session['user_id'] = admin_user.id
             session['role'] = 'admin'
-            flash('Logged in successfully', 'success')
+            flash('Successfully logged in!', 'success')
             return redirect(url_for('admin.dashboard'))
 
-        # Check customer credentials
-        customer = Customer.query.filter_by(email=email, is_admin=False).first()
-        if customer and customer.check_password(password):
-            session['user_id'] = customer.id
+        # Validate regular customer
+        regular_customer = Customer.query.filter_by(email=user_email, is_admin=False).first()
+        if regular_customer and regular_customer.check_password(user_password):
+            session['user_id'] = regular_customer.id
             session['role'] = 'customer'
-            flash('Logged in successfully', 'success')
+            flash('Successfully logged in!', 'success')
             return redirect(url_for('customer_view.dashboard'))
 
-        # Check professional credentials
-        professional = Professional.query.filter_by(email=email).first()
-        if professional and check_password_hash(professional.passhash, password):
-            session['professional_id'] = professional.id
-            session['user_id']=professional.id
+        # Validate professional user
+        professional_user = Professional.query.filter_by(email=user_email).first()
+        if professional_user and check_password_hash(professional_user.passhash, user_password):
+            session['professional_id'] = professional_user.id
+            session['user_id'] = professional_user.id
             session['role'] = 'professional'
-            flash('Logged in successfully', 'success')
+            flash('Successfully logged in!', 'success')
             return redirect(url_for('professional_view.dashboard'))
 
-        # If no match, raise an error
-        error = "Invalid email or password."
-        flash(error, 'danger')
+        # Authentication failed
+        flash('Incorrect email or password.', 'danger')
         return render_template('login.html')
     return render_template('login.html')
 
-
-@auth_blueprint.route('/register', methods=['GET', 'POST'])
-def register():
+@authentication_bp.route('/register', methods=['GET', 'POST'])
+def user_register():
     if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
+        user_email = request.form.get('email')
+        user_password = request.form.get('password')
         full_name = request.form.get('full_name')
-        phone_number = request.form.get('phone_number')
-        address = request.form.get('address')
-        city = request.form.get('city')
-        pincode = request.form.get('pincode')
-        if Customer.query.filter_by(email=email).first():
-            flash('Email already exists', 'danger')
-            return redirect(url_for('auth.register'))
-        if Customer.query.filter_by(phone_number=phone_number).first():
-            flash('Phone number already associated with another account', 'danger')
-            return redirect(url_for('auth.register'))
-        customer = Customer(email=email, passhash= generate_password_hash(password), full_name=full_name, phone_number=phone_number, address=address, city=city, pincode=pincode, is_admin=False)
-        db.session.add(customer)
+        phone = request.form.get('phone_number')
+        user_address = request.form.get('address')
+        user_city = request.form.get('city')
+        user_pincode = request.form.get('pincode')
+
+        # Add address validation
+        if not user_address:
+            flash('Address is required.', 'danger')
+            return redirect(url_for('authentication.user_register'))
+
+        if Customer.query.filter_by(email=user_email).first():
+            flash('Email is already in use.', 'danger')
+            return redirect(url_for('authentication.user_register'))
+        if Customer.query.filter_by(phone_number=phone).first():
+            flash('Phone number is already linked to another account.', 'danger')
+            return redirect(url_for('authentication.user_register'))
+
+        new_customer = Customer(
+            email=user_email,
+            passhash=generate_password_hash(user_password),
+            full_name=full_name,
+            phone_number=phone,
+            address=user_address,
+            city=user_city,
+            pincode=user_pincode,
+            is_admin=False
+        )
+        db.session.add(new_customer)
         db.session.commit()
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('authentication.user_login'))
     return render_template('register.html')
-        
-        
-@auth_blueprint.route('/register/professional', methods=['GET', 'POST'])
-def register_professional():
-    services = ServicePackage.query.all()
-    if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-        full_name = request.form.get('full_name')
-        phone_number = request.form.get('phone_number')
-        city = request.form.get('city')
-        pincode = request.form.get('pincode')
-        service_package_id = request.form.get('service_package_id')
-        experience = request.form.get('experience')
-        if Professional.query.filter_by(email=email).first():
-            flash('Email already exists', 'danger')
-            return redirect(url_for('auth.register_professional'))
-        if Professional.query.filter_by(phone_number=phone_number).first():
-            flash('Phone number already associated with another account', 'danger')
-            return redirect(url_for('auth.register_professional'))
 
-        file_path = None
-        
+@authentication_bp.route('/register/professional', methods=['GET', 'POST'])
+def professional_register():
+    available_services = ServicePackage.query.all()
+    if request.method == 'POST':
+        prof_email = request.form.get('email')
+        prof_password = request.form.get('password')
+        prof_full_name = request.form.get('full_name')
+        prof_phone = request.form.get('phone_number')
+        prof_city = request.form.get('city')
+        prof_pincode = request.form.get('pincode')
+        service_package = request.form.get('service_package_id')
+        prof_experience = request.form.get('experience')
+
+        if Professional.query.filter_by(email=prof_email).first():
+            flash('Email is already registered.', 'danger')
+            return redirect(url_for('authentication.professional_register'))
+        if Professional.query.filter_by(phone_number=prof_phone).first():
+            flash('Phone number is already associated with another account.', 'danger')
+            return redirect(url_for('authentication.professional_register'))
+
+        document_path = None
+
         if 'document' in request.files:
-            file = request.files['document']
-            if file.filename != '' and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                file.save(file_path)
+            document = request.files['document']
+            if document.filename and is_allowed_file(document.filename):
+                secure_name = secure_filename(document.filename)
+                document_path = os.path.join(current_app_instance.config['UPLOAD_FOLDER'], secure_name)
+                document.save(document_path)
             else:
-                flash('Please upload a valid file (pdf, jpg, jpeg, or png)', 'danger')
+                flash('Invalid file type. Allowed types: pdf, jpg, jpeg, png.', 'danger')
                 return redirect(request.url)
         else:
-            flash('Document upload is required', 'danger')
+            flash('Document upload is mandatory.', 'danger')
             return redirect(request.url)
 
-        professional = Professional(
-            email=email,
-            passhash=generate_password_hash(password),
-            full_name=full_name,
-            phone_number=phone_number,
-            city=city,
-            pincode=pincode,
-            service_package_id=service_package_id,
-            experience=experience,
-            document=file_path
-        )   
-        db.session.add(professional)
+        new_professional = Professional(
+            email=prof_email,
+            passhash=generate_password_hash(prof_password),
+            full_name=prof_full_name,
+            phone_number=prof_phone,
+            city=prof_city,
+            pincode=prof_pincode,
+            service_package_id=service_package,
+            experience=prof_experience,
+            document=document_path
+        )
+        db.session.add(new_professional)
         db.session.commit()
-        flash('Registration successful', 'success')
-        return redirect(url_for('auth.login'))
-    return render_template('register_professional.html', services=services)
+        flash('Registration completed successfully!', 'success')
+        return redirect(url_for('authentication.user_login'))
+    return render_template('register_professional.html', services=available_services)
 
-def allowed_file(filename):
-    ALLOWED_EXTENSIONS = {'pdf', 'jpg', 'jpeg', 'png'}
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+def is_allowed_file(filename):
+    permitted_extensions = {'pdf', 'jpg', 'jpeg', 'png'}
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in permitted_extensions
 
-@auth_blueprint.route('/logout')
-def logout():
+@authentication_bp.route('/logout')
+def user_logout():
     session.clear()
-    return redirect(url_for('auth.login'))
+    return redirect(url_for('authentication.user_login'))

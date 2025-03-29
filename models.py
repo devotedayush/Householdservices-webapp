@@ -42,6 +42,7 @@ def create_admin_if_not_exists():
         db.session.add(admin)
         db.session.commit()
         print("Admin user created successfully")
+
 def reset_professional_table():
     with app.app_context():
         # Drop only the professional table
@@ -64,10 +65,28 @@ class Professional(db.Model):
     service_package_id = db.Column(db.Integer, db.ForeignKey('service_package.id'), nullable=False)
     experience = db.Column(db.Integer, nullable=False)
     document = db.Column(db.String(255), nullable=False)
-    status = db.Column(db.String(50), nullable=False, default="pending") # pending, approved, rejected
+    status = db.Column(db.String(50), nullable=False, default="pending")
 
-    service_requests = db.relationship('ServiceRequest', backref='professional', lazy=True)
-    rejected_requests = db.relationship('RejectedServiceRequest', backref='professional', lazy=True)
+    def set_password(self, password):
+        self.passhash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.passhash, password)
+
+    def get_average_rating(self):
+        completed_requests = ServiceRequest.query.filter_by(
+            professional_id=self.id,
+            status='completed'
+        ).filter(ServiceRequest.rating.isnot(None)).all()
+        
+        if not completed_requests:
+            return 0
+            
+        total_rating = sum(request.rating for request in completed_requests)
+        return total_rating / len(completed_requests)
+
+    rejected_requests = db.relationship('RejectedServiceRequest', backref='professional', lazy=True, cascade="all, delete-orphan")
+    service_package = db.relationship('ServicePackage', backref='professionals', lazy=True)
 
 # ServiceCategory Model
 class ServiceCategory(db.Model):
@@ -87,7 +106,7 @@ class ServicePackage(db.Model):
     time = db.Column(db.Integer, nullable=False)  # Time in hours
     description = db.Column(db.Text, nullable=False)
 
-    service_requests = db.relationship('ServiceRequest', backref='service_package', lazy=True)
+    service_requests = db.relationship('ServiceRequest', backref='service_package', lazy=True, cascade="all, delete-orphan")
 
 # ServiceRequest Model
 class ServiceRequest(db.Model):
@@ -102,12 +121,23 @@ class ServiceRequest(db.Model):
     rating = db.Column(db.Float, nullable=True)
     remarks = db.Column(db.Text, nullable=True)
 
+    professional = db.relationship('Professional', backref='service_requests', lazy=True)
+
 # RejectedServiceRequest Model
 class RejectedServiceRequest(db.Model):
     __tablename__ = 'rejected_service_request'
     id = db.Column(db.Integer, primary_key=True)
     service_request_id = db.Column(db.Integer, db.ForeignKey('service_request.id'), nullable=False)
     professional_id = db.Column(db.Integer, db.ForeignKey('professional.id'), nullable=False)
+
+# DelayedRequest Model
+class DelayedRequest(db.Model):
+    __tablename__ = 'delayed_request'
+    id = db.Column(db.Integer, primary_key=True)
+    service_request_id = db.Column(db.Integer, db.ForeignKey('service_request.id'), nullable=False)
+    date_marked = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    service_request = db.relationship('ServiceRequest', backref='delayed_request', lazy=True)
 
 with app.app_context():
     db.create_all()

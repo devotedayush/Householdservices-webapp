@@ -1,4 +1,10 @@
 {% extends "base.html" %}
+
+{% block head %}
+<!-- Add Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
     <div class="card">
@@ -40,7 +46,49 @@
                     </div>
                 </div>
             </div>
+            <!-- Chart Section -->
+            <div class="row mt-4">
+                <div class="col-md-8 mx-auto">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title text-center">Request Status Distribution</h5>
+                            <canvas id="requestStatusChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<script>
+// Request Status Chart
+const ctx = document.getElementById('requestStatusChart');
+new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Ongoing', 'Completed', 'Cancelled'],
+        datasets: [{
+            data: [
+                {{ request_status.requested or 0 }},
+                {{ request_status.completed or 0 }},
+                {{ request_status.cancelled or 0 }}
+            ],
+            backgroundColor: [
+                '#ffc107',  // warning - ongoing
+                '#28a745',  // success - completed
+                '#dc3545'   // danger - cancelled
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+</script>
 {% endblock %}

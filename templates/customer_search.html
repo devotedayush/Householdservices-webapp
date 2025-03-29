@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Search Services{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Search Services</h2>
+    
+    <!-- Search Form -->
+    <form method="GET" action="{{ url_for('customer_view.search') }}" class="mb-4">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="input-group">
+                    <input type="text" 
+                           class="form-control" 
+                           name="service_name" 
+                           placeholder="Search for services..."
+                           value="{{ search_query if search_query else '' }}">
+                    <button class="btn btn-primary" type="submit">Search</button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <!-- Search Results -->
+    <div class="row">
+        {% if services %}
+            {% for service in services %}
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ service.name }}</h5>
+                        <p class="card-text">{{ service.description }}</p>
+                        <ul class="list-unstyled">
+                            <li>Price: ${{ service.price }}</li>
+                            <li>Duration: {{ service.time }} hours</li>
+                            <li>Category: {{ service.service_category.name }}</li>
+                        </ul>
+                        <form action="{{ url_for('customer_services.request_service', package_id=service.id) }}" method="POST">
+                            <button type="submit" class="btn btn-primary">Request Service</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            {% if search_query %}
+            <div class="col-12">
+                <p class="text-center">No services found matching "{{ search_query }}"</p>
+            </div>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

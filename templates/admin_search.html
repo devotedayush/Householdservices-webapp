@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Search{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Admin Search</h2>
+    <form method="GET" action="{{ url_for('admin.search') }}">
+        <div class="row mb-3">
+            <div class="col">
+                <label for="service_category" class="form-label">Service Category</label>
+                <select class="form-select" name="service_category">
+                    <option value="">All Categories</option>
+                    {% for category in service_categories %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col">
+                <label for="professional_status" class="form-label">Professional Status</label>
+                <select class="form-select" name="professional_status">
+                    <option value="">All Statuses</option>
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+            </div>
+            <div class="col">
+                <label for="request_status" class="form-label">Request Status</label>
+                <select class="form-select" name="request_status">
+                    <option value="">All Statuses</option>
+                    <option value="requested">Requested</option>
+                    <option value="assigned">Assigned</option>
+                    <option value="completed">Completed</option>
+                </select>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+
+    <hr>
+
+    <h3>Search Results</h3>
+    <div>
+        <h4>Services</h4>
+        <ul>
+            {% for service in services %}
+            <li>{{ service.name }} - {{ service.service_category.name }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div>
+        <h4>Professionals</h4>
+        <ul>
+            {% for professional in professionals %}
+            <li>{{ professional.full_name }} - {{ professional.status }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div>
+        <h4>Service Requests</h4>
+        <ul>
+            {% for request in service_requests %}
+            <li>{{ request.id }} - {{ request.status }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %} 

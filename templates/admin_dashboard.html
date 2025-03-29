@@ -57,6 +57,14 @@
                 <div class="modal-body">
                     <form id="addServiceForm" action="{{ url_for('admin.add_service') }}" method="POST">
                         <div class="mb-3">
+                            <label for="service_category_id" class="form-label">Service Category</label>
+                            <select class="form-select" name="service_category_id" required>
+                                {% for category in service_categories %}
+                                <option value="{{ category.id }}">{{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
                             <label for="name" class="form-label">Service Name</label>
                             <input type="text" class="form-control" name="name" required>
                         </div>
@@ -71,14 +79,6 @@
                         <div class="mb-3">
                             <label for="description" class="form-label">Description</label>
                             <textarea class="form-control" name="description" required></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="service_category_id" class="form-label">Service Category</label>
-                            <select class="form-select" name="service_category_id" required>
-                                {% for category in service_categories %}
-                                <option value="{{ category.id }}">{{ category.name }}</option>
-                                {% endfor %}
-                            </select>
                         </div>
                         <button type="submit" class="btn btn-primary">Add Service</button>
                     </form>
@@ -127,6 +127,7 @@
                         <tr>
                             <th>ID</th>
                             <th>Name</th>
+                            <th>City</th>
                             <th>Experience</th>
                             <th>Service Type</th>
                             <th>Status</th>
@@ -138,8 +139,9 @@
                         <tr>
                             <td>{{ professional.id }}</td>
                             <td>{{ professional.full_name }}</td>
+                            <td>{{ professional.city }}</td>
                             <td>{{ professional.experience }} years</td>
-                            <td>{{ professional.service_type }}</td>
+                            <td>{{ professional.service_package.name }}</td>
                             <td>{{ professional.status }}</td>
                             <td>
                                 {% if professional.document %}
@@ -181,7 +183,9 @@
                         <tr>
                             <th>ID</th>
                             <th>Customer</th>
+                            <th>Customer City</th>
                             <th>Professional</th>
+                            <th>Service Requested</th>
                             <th>Date Requested</th>
                             <th>Status</th>
                         </tr>
@@ -191,9 +195,44 @@
                         <tr>
                             <td>{{ request.id }}</td>
                             <td>{{ request.customer.full_name }}</td>
+                            <td>{{ request.customer.city }}</td>
                             <td>{{ request.professional.full_name if request.professional else 'Unassigned' }}</td>
+                            <td>{{ request.service_package.name }}</td>
                             <td>{{ request.date_of_request.strftime('%Y-%m-%d %H:%M') }}</td>
                             <td>{{ request.status }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delayed Requests Section -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Delayed Requests <span class="badge bg-danger">!</span></h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Customer</th>
+                            <th>Service Requested</th>
+                            <th>Date Requested</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for delayed in delayed_requests %}
+                        <tr>
+                            <td>{{ delayed.service_request.id }}</td>
+                            <td>{{ delayed.service_request.customer.full_name }}</td>
+                            <td>{{ delayed.service_request.service_package.name }}</td>
+                            <td>{{ delayed.service_request.date_of_request.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>{{ delayed.service_request.status }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>

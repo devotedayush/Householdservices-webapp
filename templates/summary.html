@@ -4,33 +4,130 @@
 Summary
 {% endblock %}
 
+{% block head %}
+<!-- Add Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid"></div>
-<!-- Summary Section -->
-<div class="row mb-4 mt-3">
-    <div class="col-md-4">
-        <div class="card bg-primary text-white">
-            <div class="card-body">
-                <h5 class="card-title">Pending Professionals</h5>
-                <h2 class="card-text">{{ pending_professionals }}</h2>
+<div class="container-fluid">
+    <!-- Summary Cards Section -->
+    <div class="row mb-4 mt-3">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Professionals</h5>
+                    <h2 class="card-text">{{ pending_professionals }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Services</h5>
+                    <h2 class="card-text">{{ total_services }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Active Requests</h5>
+                    <h2 class="card-text">{{ active_requests }}</h2>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card bg-success text-white">
-            <div class="card-body">
-                <h5 class="card-title">Total Services</h5>
-                <h2 class="card-text">{{ total_services }}</h2>
+
+    <!-- Charts Section -->
+    <div class="row">
+        <!-- Professional Status Chart -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Professional Status Distribution</h5>
+                    <canvas id="professionalStatusChart"></canvas>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card bg-warning text-white">
-            <div class="card-body">
-                <h5 class="card-title">Active Requests</h5>
-                <h2 class="card-text">{{ active_requests }}</h2>
+        <!-- Service Requests Chart -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Service Requests by Status</h5>
+                    <canvas id="serviceRequestsChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+// Professional Status Chart
+const professionalCtx = document.getElementById('professionalStatusChart');
+new Chart(professionalCtx, {
+    type: 'pie',
+    data: {
+        labels: ['Pending', 'Approved', 'Rejected'],
+        datasets: [{
+            data: [
+                {{ professional_status.pending or 0 }},
+                {{ professional_status.approved or 0 }},
+                {{ professional_status.rejected or 0 }}
+            ],
+            backgroundColor: [
+                '#ffc107',
+                '#28a745',
+                '#dc3545'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Service Requests Chart
+const requestsCtx = document.getElementById('serviceRequestsChart');
+new Chart(requestsCtx, {
+    type: 'bar',
+    data: {
+        labels: ['Requested', 'Assigned', 'Completed'],
+        datasets: [{
+            label: 'Number of Requests',
+            data: [
+                {{ request_status.requested or 0 }},
+                {{ request_status.assigned or 0 }},
+                {{ request_status.completed or 0 }}
+            ],
+            backgroundColor: [
+                '#17a2b8',
+                '#6f42c1',
+                '#20c997'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+</script>
 {% endblock %}

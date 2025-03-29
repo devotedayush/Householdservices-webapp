@@ -8,7 +8,7 @@ service_requests = Blueprint('service_requests', __name__)
 @service_requests.before_request
 def check_professional_login():
     if 'professional_id' not in session:
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('authentication.user_login'))
 
 @service_requests.route('/accept/<int:request_id>')
 def accept_request(request_id):
@@ -78,22 +78,3 @@ def reject_request(request_id):
     flash('Request rejected successfully.', 'info')
     return redirect(url_for('professional_view.dashboard'))
 
-@service_requests.route('/complete/<int:request_id>')
-def complete_request(request_id):
-    professional_id = session.get('professional_id')
-    service_request = ServiceRequest.query.get_or_404(request_id)
-    
-    if service_request.professional_id != professional_id:
-        flash('You can only complete requests assigned to you.', 'danger')
-        return redirect(url_for('professional.dashboard'))
-    
-    if service_request.status != 'assigned':
-        flash('Only assigned requests can be marked as completed.', 'warning')
-        return redirect(url_for('professional_view.dashboard'))
-    
-    service_request.status = 'completed'
-    service_request.date_of_completion = datetime.now()
-    db.session.commit()
-    
-    flash('Request marked as completed successfully!', 'success')
-    return redirect(url_for('professional.dashboard'))

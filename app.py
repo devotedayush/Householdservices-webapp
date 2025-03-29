@@ -7,7 +7,7 @@ app = Flask(__name__) # create a flask app, named app
 
 import config
 import models
-from Folder1.auth import auth_blueprint
+from Folder1.auth import authentication_bp
 from Folder1.admin_dashboard import admin_blueprint
 from Folder2.customer_view import customer_view
 from Folder2.Folder3.professional_view import professional_view
@@ -16,9 +16,9 @@ from Folder2.services import customer_services
 
 @app.route('/')
 def home():
-    return redirect(url_for('auth.login'))
+    return redirect(url_for('authentication.user_login'))
 
-app.register_blueprint(auth_blueprint, url_prefix='/auth')
+app.register_blueprint(authentication_bp, url_prefix='/auth')
 app.register_blueprint(admin_blueprint, url_prefix='/admin')
 app.register_blueprint(customer_view, url_prefix='/customer')
 app.register_blueprint(professional_view, url_prefix='/professional')

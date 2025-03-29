@@ -4,16 +4,16 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <form method="POST" action="{{ url_for('auth.login') }}">
+            <form method="POST" action="{{ url_for('authentication.user_login') }}">
                 <div class="mb-3">
-            <label for="email" class="form-label">Email address</label>
+                    <label for="email" class="form-label">Email address</label>
                     <input type="email" class="form-control" id="email" name="email" aria-describedby="emailHelp">
                 </div>
                 <div class="mb-3">
                     <label for="password" class="form-label">Password</label>
                     <input type="password" class="form-control" id="password" name="password">
                 </div>
-                <p>Don't have an account? <a href="{{ url_for('auth.register') }}">Register</a></p>
+                <p>Don't have an account? <a href="{{ url_for('authentication.user_register') }}">Register</a></p>
                 <button type="submit" class="btn btn-success">Login</button>
             </form>
         </div>
